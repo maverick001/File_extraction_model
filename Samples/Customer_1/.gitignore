@@ -1,0 +1,4 @@
+# Keep this folder in the repo, but don't commit any documents placed here
+# (local test files may contain real PII).
+*
+!.gitignore
