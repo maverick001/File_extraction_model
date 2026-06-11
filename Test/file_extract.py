@@ -145,21 +145,47 @@ def process_file(path: str) -> dict:
     return result
 
 
-def pick_files() -> list[str]:
+def pick_files_or_folder() -> list[str]:
+    """Small launcher window — user picks individual files or an entire folder."""
+    result = []
+
+    def on_files():
+        paths = filedialog.askopenfilenames(
+            parent=root,
+            title="Select documents to extract",
+            filetypes=[
+                ("Supported files", "*.pdf *.png *.jpg *.jpeg"),
+                ("PDF files", "*.pdf"),
+                ("Image files", "*.png *.jpg *.jpeg"),
+                ("All files", "*.*"),
+            ],
+        )
+        result.extend(paths)
+        root.destroy()
+
+    def on_folder():
+        folder = filedialog.askdirectory(parent=root, title="Select a folder to process")
+        if folder:
+            result.extend(gather_inputs(folder))
+        root.destroy()
+
     root = tk.Tk()
-    root.withdraw()
+    root.title("File Extraction Model")
+    root.resizable(False, False)
     root.attributes("-topmost", True)
-    paths = filedialog.askopenfilenames(
-        title="Select documents to extract",
-        filetypes=[
-            ("Supported files", "*.pdf *.png *.jpg *.jpeg"),
-            ("PDF files", "*.pdf"),
-            ("Image files", "*.png *.jpg *.jpeg"),
-            ("All files", "*.*"),
-        ],
-    )
-    root.destroy()
-    return list(paths)
+
+    tk.Label(root, text="Select input source:", font=(None, 11), pady=12, padx=24).pack()
+
+    btn_frame = tk.Frame(root, padx=24, pady=4)
+    btn_frame.pack()
+    tk.Button(btn_frame, text="Select Files", width=16, command=on_files).pack(side=tk.LEFT, padx=6)
+    tk.Button(btn_frame, text="Select Folder", width=16, command=on_folder).pack(side=tk.LEFT, padx=6)
+
+    tk.Button(root, text="Cancel", width=10, command=root.destroy, pady=4).pack(pady=(8, 14))
+
+    root.eval("tk::PlaceWindow . center")
+    root.mainloop()
+    return result
 
 
 def gather_inputs(target: str) -> list[str]:
@@ -180,8 +206,8 @@ def main():
         for t in targets:
             files.extend(gather_inputs(t))
     else:
-        print("Opening file picker — select one or more documents (PDF / PNG / JPG) ...")
-        files = pick_files()
+        print("Opening launcher — select files or a folder ...")
+        files = pick_files_or_folder()
         if not files:
             print("No files selected. Exiting.")
             sys.exit(0)
