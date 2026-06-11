@@ -146,8 +146,8 @@ File_extraction_model/
 │   ├── file_extract.py      # Main extraction script
 │   └── extracted/           # JSON output (created on first run)
 ├── Samples/
-│   ├── Customer_1/           # empty placeholder folder
-│   └── Customer_2/           # sample bank statement (mock data)
+│   ├── Customer_1/           # Custoemr 1 documents
+│   └── Customer_2/           # Customer 2 documents
 ├── .gitignore
 └── README.md
 ```
