@@ -154,15 +154,3 @@ File_extraction_model/
 ├── .gitignore
 └── README.md
 ```
-
----
-
-## Troubleshooting
-
-**`ollama.ResponseError: model not found`** — Run `ollama pull <model-name>` to download the model first, and confirm `MODEL` in `file_extract.py` matches what you pulled.
-
-**Launcher window doesn't open / `ModuleNotFoundError: No module named 'tkinter'`** — Install tkinter (`sudo apt install python3-tk` on Linux). On Windows/macOS it ships with the official Python installer. You can always skip the GUI by passing files/folders as command-line arguments.
-
-**JSON parse errors** — The model occasionally wraps output in markdown fences despite instructions. The script strips these automatically; if it still fails, try a larger/different model.
-
-**Scanned PDF renders blank** — Ensure `pypdfium2` is installed (`pip install pypdfium2`).
