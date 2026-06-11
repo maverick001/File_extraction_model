@@ -1,0 +1,11 @@
+PRD/
+Contract/
+Claude.md
+CLAUDE.md
+.claudeingore
+stoik-preview (10).html
+Axio_Prediction_Model_1-Demo/
+Samples/ID/
+Test/extracted/
+**/__pycache__/
+*.pyc
