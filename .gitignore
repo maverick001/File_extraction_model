@@ -8,3 +8,6 @@ Samples/*
 !Samples/Customer*
 **/__pycache__/
 *.pyc
+
+# Extraction output — kept locally, not published (may contain real PII)
+Test/extracted/
