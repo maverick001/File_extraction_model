@@ -1,10 +1,10 @@
 # File Extraction Model
 
-A local AI-powered tool that extracts structured financial data from bank statements, payslips, and related documents (PDF or image). It runs entirely on-device using [Ollama](https://ollama.com/) — no data leaves your machine.
+A local GenAI script that extracts pre-defined data from PDF or JPG/PNG files. It runs entirely on-device using a local open-source model Qwen3.5.
 
 ---
 
-## What it does
+## Example of use case
 
 Given one or more PDFs or PNG/JPG files, the script outputs a JSON file per document containing:
 
@@ -28,7 +28,7 @@ Fields that can't be found are returned as `null`.
 | Python | 3.10+ |
 | `tkinter` | Bundled with Python on Windows/macOS. On Linux: `sudo apt install python3-tk` |
 | [Ollama](https://ollama.com/download) | latest |
-| Ollama model | `qwen3.5:4b` (must be multimodal for image/scanned-PDF support) |
+| Ollama model | `qwen3.5:4b` |
 
 > The model name is set at the top of `Test/file_extract.py` as the `MODEL` constant
 > (currently `qwen3.5:4b`). If you pull a different model, update `MODEL` to match.
@@ -95,17 +95,17 @@ python Test/file_extract.py <file-or-folder> [more files/folders ...]
 
 **Single file:**
 ```bash
-python Test/file_extract.py "Samples/Customer_1/blake payslip 1.png"
+python Test/file_extract.py Samples/Customer_2/bank_statement.png
 ```
 
 **Entire folder:**
 ```bash
-python Test/file_extract.py Samples/Customer_1
+python Test/file_extract.py Samples/Customer_2
 ```
 
-**Multiple folders at once:**
+**Multiple files/folders at once:**
 ```bash
-python Test/file_extract.py Samples/Customer_1 Samples/Customer_2
+python Test/file_extract.py Samples/Customer_2 path/to/your/own/docs
 ```
 
 ### Output
@@ -114,34 +114,16 @@ JSON files are written to `Test/extracted/<original-filename>.json`. Example:
 
 ```json
 {
-  "full_name": "Michael Gobbie",
-  "bank_account_id": null,
-  "address": "12 Example St, Sydney NSW 2000",
-  "ytd_income": "9844.15",
-  "credit": null,
-  "liability": null
+  "full_name": "Michael Jordan",
+  "bank_account_id": 12345678910,
+  "address": "12 Brisbane St, Sydney NSW 2000",
+  "ytd_income": "120000.00",
+  "credit": 20000.00,
+  "liability": 50000.00
 }
 ```
 
----
 
-## Sample documents
-
-Sample documents live under `Samples/`. For privacy, **most sample folders are
-excluded from version control** — only the `Samples/Customer_*` folders are committed,
-so those are the ones you'll have after cloning:
-
-```
-Samples/
-├── Customer_1/   # payslips (PNG)
-└── Customer_2/   # bank statement (PNG)
-```
-
-> `.gitignore` ignores everything under `Samples/` except `Samples/Customer_*`.
-> Drop your own test documents into any `Samples/Customer_*` folder (or anywhere
-> on disk) and point the script at them.
-
----
 
 ## How the script handles different inputs
 
@@ -164,8 +146,7 @@ File_extraction_model/
 │   ├── file_extract.py      # Main extraction script
 │   └── extracted/           # JSON output (created on first run)
 ├── Samples/
-│   ├── Customer_1/
-│   └── Customer_2/
+│   └── Customer_2/           # sample bank statement (mock data)
 ├── .gitignore
 └── README.md
 ```
