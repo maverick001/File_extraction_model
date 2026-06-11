@@ -93,6 +93,9 @@ Pass any mix of files and folders. Folders are scanned for supported files.
 python Test/file_extract.py <file-or-folder> [more files/folders ...]
 ```
 
+> The `Samples/Customer_1` and `Samples/Customer_2` folders ship empty — drop
+> your own documents into them (their contents stay local and are never committed).
+
 **Single file:**
 ```bash
 python Test/file_extract.py Samples/Customer_2/bank_statement.png
@@ -105,7 +108,7 @@ python Test/file_extract.py Samples/Customer_2
 
 **Multiple files/folders at once:**
 ```bash
-python Test/file_extract.py Samples/Customer_2 path/to/your/own/docs
+python Test/file_extract.py Samples/Customer_1 Samples/Customer_2
 ```
 
 ### Output

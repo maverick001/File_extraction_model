@@ -2,4 +2,3 @@
 # (local test files may contain real PII).
 *
 !.gitignore
-!bank_statement.png
