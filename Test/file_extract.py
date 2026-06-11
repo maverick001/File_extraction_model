@@ -3,6 +3,8 @@ import logging
 import os
 import re
 import sys
+import tkinter as tk
+from tkinter import filedialog
 import pdfplumber
 import pypdfium2 as pdfium
 import ollama
@@ -143,6 +145,23 @@ def process_file(path: str) -> dict:
     return result
 
 
+def pick_files() -> list[str]:
+    root = tk.Tk()
+    root.withdraw()
+    root.attributes("-topmost", True)
+    paths = filedialog.askopenfilenames(
+        title="Select documents to extract",
+        filetypes=[
+            ("Supported files", "*.pdf *.png *.jpg *.jpeg"),
+            ("PDF files", "*.pdf"),
+            ("Image files", "*.png *.jpg *.jpeg"),
+            ("All files", "*.*"),
+        ],
+    )
+    root.destroy()
+    return list(paths)
+
+
 def gather_inputs(target: str) -> list[str]:
     if os.path.isdir(target):
         files = [
@@ -155,14 +174,17 @@ def gather_inputs(target: str) -> list[str]:
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python ollama_extract.py <file-or-folder> [more files/folders ...]")
-        sys.exit(1)
-
-    targets = sys.argv[1:]
-    files = []
-    for t in targets:
-        files.extend(gather_inputs(t))
+    if len(sys.argv) >= 2:
+        targets = sys.argv[1:]
+        files = []
+        for t in targets:
+            files.extend(gather_inputs(t))
+    else:
+        print("Opening file picker — select one or more documents (PDF / PNG / JPG) ...")
+        files = pick_files()
+        if not files:
+            print("No files selected. Exiting.")
+            sys.exit(0)
 
     print(f"Processing {len(files)} file(s) with {MODEL} ...")
     for path in files:
