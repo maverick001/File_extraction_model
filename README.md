@@ -6,7 +6,7 @@ A local AI-powered tool that extracts structured financial data from bank statem
 
 ## What it does
 
-Given one or more PDFs or images, the script outputs a JSON file per document containing:
+Given one or more PDFs or PNG/JPG files, the script outputs a JSON file per document containing:
 
 | Field | Description |
 |---|---|
