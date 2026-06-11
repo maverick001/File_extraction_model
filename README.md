@@ -17,76 +17,95 @@ Given one or more PDFs or PNG/JPG files, the script outputs a JSON file per docu
 | `credit` | Total credits / deposits for the period |
 | `liability` | Total liabilities or outstanding balance |
 
-Unsupported fields are returned as `null`.
+Fields that can't be found are returned as `null`.
 
 ---
 
 ## Prerequisites
 
-| Requirement | Version |
+| Requirement | Version / Notes |
 |---|---|
 | Python | 3.10+ |
+| `tkinter` | Bundled with Python on Windows/macOS. On Linux: `sudo apt install python3-tk` |
 | [Ollama](https://ollama.com/download) | latest |
-| Ollama model | `qwen2.5:7b` or any multimodal model |
+| Ollama model | `qwen3.5:4b` (must be multimodal for image/scanned-PDF support) |
 
-### Python packages
-
-```bash
-pip install pdfplumber pypdfium2 ollama
-```
+> The model name is set at the top of `Test/file_extract.py` as the `MODEL` constant
+> (currently `qwen3.5:4b`). If you pull a different model, update `MODEL` to match.
+> A **multimodal** model is required for scanned PDFs and image inputs.
 
 ---
 
 ## Setup
 
-### 1. Install Ollama
-
-Download and install from https://ollama.com/download, then pull the model used by the script:
-
-```bash
-ollama pull qwen2.5:4b
-```
-
-> The model name is set at the top of `Test/file_extract.py` as `MODEL`. Change it to match whatever model you have pulled locally (e.g. `llava`, `gemma3`, `mistral`). A multimodal model is required for scanned PDFs and image inputs.
-
-### 2. Clone this repo
+### 1. Clone the repo
 
 ```bash
 git clone https://github.com/maverick001/File_extraction_model.git
 cd File_extraction_model
 ```
 
-### 3. Install Python dependencies
+### 2. Install Python dependencies
 
 ```bash
-pip install pdfplumber pypdfium2 ollama
+pip install -r requirements.txt
 ```
+
+> On Linux, also install the tkinter system package if you want the interactive
+> file picker: `sudo apt install python3-tk`.
+
+### 3. Install Ollama and pull the model
+
+Download and install Ollama from https://ollama.com/download, then pull the model
+referenced by `MODEL`:
+
+```bash
+ollama pull qwen3.5:4b
+```
+
+Make sure the Ollama service is running (it starts automatically after install;
+you can verify with `ollama list`).
 
 ---
 
 ## Usage
 
-Run the script from the repo root (or any directory — output always goes to `Test/extracted/`):
+The script can be run **interactively** (a file-picker window) or with **command-line
+arguments**. Output always goes to `Test/extracted/`.
+
+### Interactive mode (no arguments)
+
+```bash
+python Test/file_extract.py
+```
+
+A small launcher window opens with two choices:
+
+- **Select Files** — pick one or more individual documents.
+- **Select Folder** — process every supported file (`.pdf`, `.png`, `.jpg`, `.jpeg`)
+  in a folder.
+
+### Command-line mode
+
+Pass any mix of files and folders. Folders are scanned for supported files.
 
 ```bash
 python Test/file_extract.py <file-or-folder> [more files/folders ...]
 ```
 
-### Examples
-
 **Single file:**
 ```bash
-python Test/file_extract.py "Samples/Payslip/08421_Payslip_15-AUG-2025.pdf"
+python Test/file_extract.py "Samples/Customer_1/blake payslip 1.png"
 ```
 
 **Entire folder:**
 ```bash
-python Test/file_extract.py Samples/BankStatement
+python Test/file_extract.py Samples/Customer_1
 ```
 
 **Multiple folders at once:**
 ```bash
-python Test/file_extract.py Samples/BankStatement Samples/Payslip Samples/Equifax
+python Test/file_extract.py Samples/Customer_1 Samples/Customer_2
 ```
 
 ### Output
@@ -108,16 +127,19 @@ JSON files are written to `Test/extracted/<original-filename>.json`. Example:
 
 ## Sample documents
 
-The `Samples/` directory contains test documents organised by type:
+Sample documents live under `Samples/`. For privacy, **most sample folders are
+excluded from version control** — only the `Samples/Customer_*` folders are committed,
+so those are the ones you'll have after cloning:
 
 ```
 Samples/
-├── BankStatement/   # NAB, Mastercard statements (PDF + PNG)
-├── Payslip/         # Various payslip formats (PDF + image)
-└── Equifax/         # Credit report PDFs
+├── Customer_1/   # payslips (PNG)
+└── Customer_2/   # bank statement (PNG)
 ```
 
-> `Samples/ID/` is excluded from this repo for privacy reasons.
+> `.gitignore` ignores everything under `Samples/` except `Samples/Customer_*`.
+> Drop your own test documents into any `Samples/Customer_*` folder (or anywhere
+> on disk) and point the script at them.
 
 ---
 
@@ -126,10 +148,11 @@ Samples/
 | Input type | Behaviour |
 |---|---|
 | Digital PDF (text-selectable) | Text is extracted with `pdfplumber` and sent to the LLM as plain text — fast and accurate |
-| Scanned PDF (image-only) | Pages are rendered to PNG at 144 dpi and sent to the vision model |
+| Scanned PDF (image-only) | Pages are rendered to PNG at ~144 dpi and sent to the vision model |
 | PNG / JPG / JPEG | Image is sent directly to the vision model |
 
-The threshold for switching from text to vision mode is controlled by `MIN_PDF_TEXT_CHARS` (default: 80 characters extracted).
+The threshold for switching from text to vision mode is controlled by
+`MIN_PDF_TEXT_CHARS` (default: 80 characters extracted).
 
 ---
 
@@ -138,11 +161,11 @@ The threshold for switching from text to vision mode is controlled by `MIN_PDF_T
 ```
 File_extraction_model/
 ├── Test/
-│   └── file_extract.py      # Main extraction script
+│   ├── file_extract.py      # Main extraction script
+│   └── extracted/           # JSON output (created on first run)
 ├── Samples/
-│   ├── BankStatement/
-│   ├── Payslip/
-│   └── Equifax/
+│   ├── Customer_1/
+│   └── Customer_2/
 ├── .gitignore
 └── README.md
 ```
@@ -151,7 +174,9 @@ File_extraction_model/
 
 ## Troubleshooting
 
-**`ollama.ResponseError: model not found`** — Run `ollama pull <model-name>` to download the model first.
+**`ollama.ResponseError: model not found`** — Run `ollama pull <model-name>` to download the model first, and confirm `MODEL` in `file_extract.py` matches what you pulled.
+
+**Launcher window doesn't open / `ModuleNotFoundError: No module named 'tkinter'`** — Install tkinter (`sudo apt install python3-tk` on Linux). On Windows/macOS it ships with the official Python installer. You can always skip the GUI by passing files/folders as command-line arguments.
 
 **JSON parse errors** — The model occasionally wraps output in markdown fences despite instructions. The script strips these automatically; if it still fails, try a larger/different model.
 
